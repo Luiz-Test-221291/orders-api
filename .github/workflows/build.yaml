@@ -2,7 +2,7 @@ name: workflow-orders-api
 on:
   push:
     branches:
-      - *
+      - feature/*
 jobs:
   application:
     runs-on: ubuntu-latest
