@@ -7,7 +7,7 @@ on:
 
 jobs:
 
-  Build:
+  BuildAndTestWithGradle:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -32,8 +32,8 @@ jobs:
     - name: Tests with Gradle
       run: ./gradlew test
 
-  Create Pull Request:
-    needs: Build
+  CreatePullRequest:
+    needs: BuildAndTestWithGradle
     runs-on: ubuntu-latest
     
     steps:
