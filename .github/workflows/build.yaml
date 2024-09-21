@@ -1,15 +1,18 @@
-name: workflow orders-api
-on: 
-  pull_request:
+name: Orders API CI (Continuous Integration)
+
+on:
+  push:
     branches:
       - develop
+
 jobs:
-  build:
+
+  Build:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-
+    
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK 17
@@ -25,3 +28,19 @@ jobs:
 
     - name: Build with Gradle
       run: ./gradlew build
+
+    - name: Tests with Gradle
+      run: ./gradlew test
+
+  Create Pull Request:
+    needs: Build
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create pull request
+        run: gh pr create -B main -H develop --title 'Merge Develop into Main' --body 'Created automatic Pull Request by Github action.'
+        env:
+            GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
