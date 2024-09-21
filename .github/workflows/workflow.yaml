@@ -22,7 +22,7 @@ jobs:
         run: chmod +x gradlew
       
       - name: Build application
-        run: dotnet build --no-restore
+        run: ./gradlew build
 
       - name: Test application
         run: ./gradlew test --tests "*"
