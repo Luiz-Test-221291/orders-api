@@ -1,31 +1,41 @@
-name: create-pull-request
+name: Orders API CI (Continuous Integration)
+
 on:
   push:
     branches:
-      - feature/*
+      - develop
+
 jobs:
-  createPullRequest:
+  build-application:
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v4
-      - name: Create Pull Request
-        id: cpr
-        uses: peter-evans/create-pull-request@v6
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java 22
+        uses: actions/setup-java@v4
         with:
-          token: ${{ secrets.PAT }}
-          commit-message: Update report
-          committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
-          author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
-          signoff: false
-          branch: example-patches
-          delete-branch: false
-          title: '[Example] Test'
-          body: |
-            Test
-          labels: |
-            automated pr
-          team-reviewers: |
-            developers
-            qa-team
-          milestone: 1
-          draft: false
+          distribution: 'temurin'
+          java-version: '22'
+          cache: 'gradle'
+        run: chmod +x gradlew
+      
+      - name: Build application
+        run: dotnet build --no-restore
+
+      - name: Test application
+        run: ./gradlew test --tests "*"
+
+  create-pull-request:
+    needs: build-application
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create pull request
+        run: gh pr create -B main -H develop --title 'Merge Develop into Main' --body 'Created automatic Pull Request by Github action.'
+        env:
+            GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
